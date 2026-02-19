@@ -1,3 +1,5 @@
+#:property PublishAot=false
+
 // DESAFIO: Gerador de Relatórios Complexos
 // PROBLEMA: Sistema precisa gerar diferentes tipos de relatórios (PDF, Excel, HTML)
 // com múltiplas configurações opcionais (cabeçalho, rodapé, gráficos, tabelas, filtros)
@@ -8,86 +10,80 @@ using System.Collections.Generic;
 
 namespace DesignPatternChallenge
 {
-    // Contexto: Sistema de BI que gera relatórios customizados para diferentes departamentos
-    // Cada relatório pode ter dezenas de configurações opcionais
-    
     public class SalesReport
     {
-        public string Title { get; set; }
-        public string Format { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public bool IncludeHeader { get; set; }
-        public bool IncludeFooter { get; set; }
-        public string HeaderText { get; set; }
-        public string FooterText { get; set; }
-        public bool IncludeCharts { get; set; }
-        public string ChartType { get; set; }
-        public bool IncludeSummary { get; set; }
-        public List<string> Columns { get; set; }
-        public List<string> Filters { get; set; }
-        public string SortBy { get; set; }
-        public string GroupBy { get; set; }
-        public bool IncludeTotals { get; set; }
-        public string Orientation { get; set; }
-        public string PageSize { get; set; }
-        public bool IncludePageNumbers { get; set; }
-        public string CompanyLogo { get; set; }
-        public string WaterMark { get; set; }
+        public string Title { get; private set; }
+        public string Format { get; private set; }
+        public DateTime StartDate { get; private set; }
+        public DateTime EndDate { get; private set; }
+        public bool IncludeHeader { get; private set; }
+        public bool IncludeFooter { get; private set; }
+        public string HeaderText { get; private set; }
+        public string FooterText { get; private set; }
+        public bool IncludeCharts { get; private set; }
+        public string ChartType { get; private set; }
+        public bool IncludeSummary { get; private set; }
+        public List<string> Columns { get; private set; }
+        public List<string> Filters { get; private set; }
+        public string SortBy { get; private set; }
+        public string GroupBy { get; private set; }
+        public bool IncludeTotals { get; private set; }
+        public string Orientation { get; private set; }
+        public string PageSize { get; private set; }
+        public bool IncludePageNumbers { get; private set; }
+        public string CompanyLogo { get; private set; }
+        public string WaterMark { get; private set; }
 
-        // Problema: Construtor telescópico (muitos parâmetros)
-        public SalesReport(
-            string title,
-            string format,
-            DateTime startDate,
-            DateTime endDate,
-            bool includeHeader,
-            bool includeFooter,
-            string headerText,
-            string footerText,
-            bool includeCharts,
-            string chartType,
-            bool includeSummary,
-            List<string> columns,
-            List<string> filters,
-            string sortBy,
-            string groupBy,
-            bool includeTotals,
-            string orientation,
-            string pageSize,
-            bool includePageNumbers,
-            string companyLogo,
-            string waterMark)
+        internal SalesReport()
         {
-            Title = title;
-            Format = format;
-            StartDate = startDate;
-            EndDate = endDate;
-            IncludeHeader = includeHeader;
-            IncludeFooter = includeFooter;
-            HeaderText = headerText;
-            FooterText = footerText;
-            IncludeCharts = includeCharts;
-            ChartType = chartType;
-            IncludeSummary = includeSummary;
-            Columns = columns;
-            Filters = filters;
-            SortBy = sortBy;
-            GroupBy = groupBy;
-            IncludeTotals = includeTotals;
-            Orientation = orientation;
-            PageSize = pageSize;
-            IncludePageNumbers = includePageNumbers;
-            CompanyLogo = companyLogo;
-            WaterMark = waterMark;
-        }
-
-        // Alternativa problemática: Construtor vazio + setters
-        public SalesReport()
-        {
+            Title = string.Empty;
+            Format = string.Empty;
+            HeaderText = string.Empty;
+            FooterText = string.Empty;
+            ChartType = string.Empty;
+            SortBy = string.Empty;
+            GroupBy = string.Empty;
+            Orientation = "Portrait";
+            PageSize = "A4";
+            CompanyLogo = string.Empty;
+            WaterMark = string.Empty;
             Columns = new List<string>();
             Filters = new List<string>();
         }
+
+        internal void SetTitle(string title) => Title = title;
+        internal void SetFormat(string format) => Format = format;
+        internal void SetPeriod(DateTime startDate, DateTime endDate)
+        {
+            StartDate = startDate;
+            EndDate = endDate;
+        }
+        internal void SetHeader(string headerText)
+        {
+            IncludeHeader = true;
+            HeaderText = headerText;
+        }
+        internal void SetFooter(string footerText)
+        {
+            IncludeFooter = true;
+            FooterText = footerText;
+        }
+        internal void SetChart(string chartType)
+        {
+            IncludeCharts = true;
+            ChartType = chartType;
+        }
+        internal void SetSummary(bool includeSummary) => IncludeSummary = includeSummary;
+        internal void AddColumn(string column) => Columns.Add(column);
+        internal void AddFilter(string filter) => Filters.Add(filter);
+        internal void SetSortBy(string sortBy) => SortBy = sortBy;
+        internal void SetGroupBy(string groupBy) => GroupBy = groupBy;
+        internal void SetTotals(bool includeTotals) => IncludeTotals = includeTotals;
+        internal void SetOrientation(string orientation) => Orientation = orientation;
+        internal void SetPageSize(string pageSize) => PageSize = pageSize;
+        internal void SetPageNumbers(bool includePageNumbers) => IncludePageNumbers = includePageNumbers;
+        internal void SetCompanyLogo(string companyLogo) => CompanyLogo = companyLogo;
+        internal void SetWaterMark(string waterMark) => WaterMark = waterMark;
 
         public void Generate()
         {
@@ -116,84 +112,220 @@ namespace DesignPatternChallenge
         }
     }
 
+    public interface IReportBuilder
+    {
+        IReportBuilder WithTitle(string title);
+        IReportBuilder InFormat(string format);
+        IReportBuilder FromPeriod(DateTime startDate, DateTime endDate);
+        IReportBuilder WithHeader(string headerText);
+        IReportBuilder WithFooter(string footerText);
+        IReportBuilder WithChart(string chartType);
+        IReportBuilder WithSummary();
+        IReportBuilder AddColumn(string column);
+        IReportBuilder AddFilter(string filter);
+        IReportBuilder SortBy(string sortBy);
+        IReportBuilder GroupBy(string groupBy);
+        IReportBuilder WithTotals();
+        IReportBuilder InOrientation(string orientation);
+        IReportBuilder InPageSize(string pageSize);
+        IReportBuilder WithPageNumbers();
+        IReportBuilder WithCompanyLogo(string companyLogo);
+        IReportBuilder WithWaterMark(string waterMark);
+        SalesReport Build();
+    }
+
+    public class SalesReportBuilder : IReportBuilder
+    {
+        private readonly SalesReport _report = new();
+
+        public IReportBuilder WithTitle(string title)
+        {
+            _report.SetTitle(title);
+            return this;
+        }
+
+        public IReportBuilder InFormat(string format)
+        {
+            _report.SetFormat(format);
+            return this;
+        }
+
+        public IReportBuilder FromPeriod(DateTime startDate, DateTime endDate)
+        {
+            _report.SetPeriod(startDate, endDate);
+            return this;
+        }
+
+        public IReportBuilder WithHeader(string headerText)
+        {
+            _report.SetHeader(headerText);
+            return this;
+        }
+
+        public IReportBuilder WithFooter(string footerText)
+        {
+            _report.SetFooter(footerText);
+            return this;
+        }
+
+        public IReportBuilder WithChart(string chartType)
+        {
+            _report.SetChart(chartType);
+            return this;
+        }
+
+        public IReportBuilder WithSummary()
+        {
+            _report.SetSummary(true);
+            return this;
+        }
+
+        public IReportBuilder AddColumn(string column)
+        {
+            _report.AddColumn(column);
+            return this;
+        }
+
+        public IReportBuilder AddFilter(string filter)
+        {
+            _report.AddFilter(filter);
+            return this;
+        }
+
+        public IReportBuilder SortBy(string sortBy)
+        {
+            _report.SetSortBy(sortBy);
+            return this;
+        }
+
+        public IReportBuilder GroupBy(string groupBy)
+        {
+            _report.SetGroupBy(groupBy);
+            return this;
+        }
+
+        public IReportBuilder WithTotals()
+        {
+            _report.SetTotals(true);
+            return this;
+        }
+
+        public IReportBuilder InOrientation(string orientation)
+        {
+            _report.SetOrientation(orientation);
+            return this;
+        }
+
+        public IReportBuilder InPageSize(string pageSize)
+        {
+            _report.SetPageSize(pageSize);
+            return this;
+        }
+
+        public IReportBuilder WithPageNumbers()
+        {
+            _report.SetPageNumbers(true);
+            return this;
+        }
+
+        public IReportBuilder WithCompanyLogo(string companyLogo)
+        {
+            _report.SetCompanyLogo(companyLogo);
+            return this;
+        }
+
+        public IReportBuilder WithWaterMark(string waterMark)
+        {
+            _report.SetWaterMark(waterMark);
+            return this;
+        }
+
+        public SalesReport Build()
+        {
+            if (string.IsNullOrWhiteSpace(_report.Title))
+                throw new InvalidOperationException("Título é obrigatório");
+
+            if (string.IsNullOrWhiteSpace(_report.Format))
+                throw new InvalidOperationException("Formato é obrigatório");
+
+            if (_report.StartDate == default || _report.EndDate == default)
+                throw new InvalidOperationException("Período é obrigatório");
+
+            if (_report.Columns.Count == 0)
+                throw new InvalidOperationException("Pelo menos uma coluna é obrigatória");
+
+            return _report;
+        }
+    }
+
+    public class ReportDirector
+    {
+        public SalesReport CreateMonthlyPdf(IReportBuilder builder)
+        {
+            return builder
+                .WithTitle("Vendas Mensais")
+                .InFormat("PDF")
+                .FromPeriod(new DateTime(2024, 1, 1), new DateTime(2024, 1, 31))
+                .WithHeader("Relatório de Vendas")
+                .WithFooter("Confidencial")
+                .AddColumn("Produto")
+                .AddColumn("Quantidade")
+                .AddColumn("Valor")
+                .WithChart("Bar")
+                .AddFilter("Status=Ativo")
+                .SortBy("Valor")
+                .GroupBy("Categoria")
+                .WithTotals()
+                .InOrientation("Portrait")
+                .InPageSize("A4")
+                .WithPageNumbers()
+                .WithWaterMark("Confidencial")
+                .Build();
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("=== Sistema de Relatórios ===");
 
-            // Problema 1: Construtor com muitos parâmetros - difícil de ler e usar
-            var report1 = new SalesReport(
-                "Vendas Mensais",           // title
-                "PDF",                       // format
-                new DateTime(2024, 1, 1),   // startDate
-                new DateTime(2024, 1, 31),  // endDate
-                true,                        // includeHeader
-                true,                        // includeFooter
-                "Relatório de Vendas",      // headerText
-                "Confidencial",              // footerText
-                true,                        // includeCharts
-                "Bar",                       // chartType
-                true,                        // includeSummary
-                new List<string> { "Produto", "Quantidade", "Valor" },  // columns
-                new List<string> { "Status=Ativo" },  // filters
-                "Valor",                     // sortBy
-                "Categoria",                 // groupBy
-                true,                        // includeTotals
-                "Portrait",                  // orientation
-                "A4",                        // pageSize
-                true,                        // includePageNumbers
-                "logo.png",                  // companyLogo
-                "Confidencial"               // waterMark
-            );
+            var director = new ReportDirector();
+            var monthlyPdf = director.CreateMonthlyPdf(new SalesReportBuilder());
+            monthlyPdf.Generate();
 
-            report1.Generate();
+            var quarterlyExcel = new SalesReportBuilder()
+                .WithTitle("Relatório Trimestral")
+                .InFormat("Excel")
+                .FromPeriod(new DateTime(2024, 1, 1), new DateTime(2024, 3, 31))
+                .WithHeader("Consolidado Trimestral")
+                .AddColumn("Vendedor")
+                .AddColumn("Região")
+                .AddColumn("Total")
+                .WithChart("Line")
+                .GroupBy("Região")
+                .WithTotals()
+                .Build();
 
-            // Problema 2: Muitos setters - ordem não importa, pode esquecer configurações obrigatórias
-            var report2 = new SalesReport();
-            report2.Title = "Relatório Trimestral";
-            report2.Format = "Excel";
-            report2.StartDate = new DateTime(2024, 1, 1);
-            report2.EndDate = new DateTime(2024, 3, 31);
-            report2.Columns.Add("Vendedor");
-            report2.Columns.Add("Região");
-            report2.Columns.Add("Total");
-            report2.IncludeCharts = true;
-            report2.ChartType = "Line";
-            // Esqueci de configurar algo? O código compila mas pode falhar em runtime
-            report2.IncludeHeader = true;
-            // Esqueci o HeaderText? 
-            report2.GroupBy = "Região";
-            report2.IncludeTotals = true;
+            quarterlyExcel.Generate();
 
-            report2.Generate();
+            var yearlyHtml = new SalesReportBuilder()
+                .WithTitle("Vendas Anuais")
+                .InFormat("HTML")
+                .FromPeriod(new DateTime(2024, 1, 1), new DateTime(2024, 12, 31))
+                .WithHeader("Painel Executivo")
+                .WithFooter("Uso interno")
+                .AddColumn("Produto")
+                .AddColumn("Quantidade")
+                .AddColumn("Valor")
+                .WithChart("Pie")
+                .AddFilter("Canal=Online")
+                .WithSummary()
+                .WithTotals()
+                .InOrientation("Landscape")
+                .Build();
 
-            // Problema 3: Relatórios com configurações parecidas exigem repetir muito código
-            var report3 = new SalesReport();
-            report3.Title = "Vendas Anuais";
-            report3.Format = "PDF";
-            report3.StartDate = new DateTime(2024, 1, 1);
-            report3.EndDate = new DateTime(2024, 12, 31);
-            report3.IncludeHeader = true;
-            report3.HeaderText = "Relatório de Vendas";
-            report3.IncludeFooter = true;
-            report3.FooterText = "Confidencial";
-            report3.Columns.Add("Produto");
-            report3.Columns.Add("Quantidade");
-            report3.Columns.Add("Valor");
-            report3.IncludeCharts = true;
-            report3.ChartType = "Pie";
-            report3.IncludeTotals = true;
-            report3.Orientation = "Landscape";
-            report3.PageSize = "A4";
-
-            report3.Generate();
-
-            // Perguntas para reflexão:
-            // - Como criar relatórios complexos sem construtores gigantes?
-            // - Como garantir que configurações obrigatórias sejam definidas?
-            // - Como reutilizar configurações comuns entre relatórios?
-            // - Como tornar o processo de criação mais legível e fluente?
+            yearlyHtml.Generate();
         }
     }
 }
